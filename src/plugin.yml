@@ -1,0 +1,11 @@
+main: me.crepppy.warpsgui.WarpsGUI
+name: WarpsGUI
+author: crepppy
+version: 1.0
+depends: Essentials
+api-version: 1.13
+
+commands:
+  warps:
+    description: Shows Warp GUI
+    usage: /<command>
