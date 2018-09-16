@@ -21,7 +21,7 @@ public class InvListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         if(e.getWhoClicked() instanceof Player) {
-            if(e.getCurrentItem() == null)
+            if(e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)
                 return;
             if(ChatColor.stripColor(e.getInventory().getTitle()).toLowerCase().startsWith("warps - ")) {
                 String s = ChatColor.stripColor(e.getCurrentItem().getItemMeta().getDisplayName());
@@ -31,10 +31,9 @@ public class InvListener implements Listener {
                 } else if(s.equalsIgnoreCase("forward") && e.getCurrentItem().getType() == Material.ARROW) {
                     ((Player) e.getWhoClicked()).performCommand("warps " + String.valueOf(Integer.parseInt(ChatColor.stripColor(e.getInventory().getTitle()).split("-")[1].trim()) + 1));
                 } else if(s.equalsIgnoreCase("My Warps") && e.getCurrentItem().getType() == Material.END_PORTAL_FRAME) {
-                    //TODO OPEN INVENTORY WITH PLAYER WARPS
                     List<String> myWarps = new ArrayList<>();
                     for(Map.Entry<String, UUID> entry : WarpsGUI.warpOwner.entrySet()) {
-                        if(entry.getValue() == e.getWhoClicked().getUniqueId())
+                        if(entry.getValue().toString().equalsIgnoreCase(e.getWhoClicked().getUniqueId().toString()))
                             myWarps.add(entry.getKey());
                     }
                     int size = myWarps.size() + 9;
@@ -42,6 +41,8 @@ public class InvListener implements Listener {
                     Inventory i = Bukkit.createInventory(null, size, "My Warps");
                     int zero = 0;
                     for(String myWarp : myWarps) {
+                        if(WarpsGUI.getInstance().getConfig().getStringList("StaffWarps").contains(myWarp))
+                            continue;
                         ItemStack item = new ItemStack(Material.BLACK_CONCRETE);
                         ItemMeta meta = item.getItemMeta();
                         meta.setDisplayName(ChatColor.GRAY + myWarp);
@@ -74,11 +75,10 @@ public class InvListener implements Listener {
                                 add(e.getWhoClicked().getUniqueId());
                             }};
                             WarpsGUI.uniqueVisits.put(s, newList);
-                        }
-                        else {
+                        } else {
                             newList.add(e.getWhoClicked().getUniqueId());
                         }
-                       
+                        
                     } else {
                         WarpsGUI.warps.put(s, 1);
                         WarpsGUI.uniqueVisits.put(s, new ArrayList<UUID>() {{
@@ -113,8 +113,7 @@ public class InvListener implements Listener {
                                 add(e.getWhoClicked().getUniqueId());
                             }};
                             WarpsGUI.uniqueVisits.put(s, newList);
-                        }
-                        else {
+                        } else {
                             newList.add(e.getWhoClicked().getUniqueId());
                             WarpsGUI.uniqueVisits.replace(s, newList);
                         }

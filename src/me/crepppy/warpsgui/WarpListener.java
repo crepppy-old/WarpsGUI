@@ -18,7 +18,7 @@ public class WarpListener implements Listener {
         }
         if(e.getMessage().toLowerCase().startsWith("/warp ")) {
             if(WarpsGUI.getInstance().getEssentials() == null)
-                if(!WarpsGUI.getInstance().makeEssentials()) {
+                if(WarpsGUI.getInstance().makeEssentials()) {
                     Bukkit.getServer().getLogger().severe("Error: Essentials not found!");
                     if(!WarpsGUI.getInstance().getEssentials().getWarps().getList().contains(e.getMessage().split(" ")[1]))
                         return;
@@ -36,7 +36,7 @@ public class WarpListener implements Listener {
                             newList.add(e.getPlayer().getUniqueId());
                             WarpsGUI.uniqueVisits.replace(e.getMessage().split(" ")[1], newList);
                         }
-                       
+                        
                     } else {
                         WarpsGUI.warps.put(e.getMessage().split(" ")[1], 1);
                         WarpsGUI.uniqueVisits.put(e.getMessage().split(" ")[1], new ArrayList<UUID>() {{

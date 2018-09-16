@@ -10,7 +10,7 @@ public class SetWarpListener implements Listener {
     public void onCommand(PlayerCommandPreprocessEvent e) {
         if(e.getMessage().toLowerCase().startsWith("/setwarp")) {
             if(WarpsGUI.playerWarps.containsKey(e.getPlayer()))
-                for(int i = WarpsGUI.playerWarps.get(e.getPlayer()) + 1; i <= 10; i++) {
+                for(int i = WarpsGUI.playerWarps.get(e.getPlayer()); i <= 10; i++) {
                     if(e.getPlayer().hasPermission("essentials.warpset." + i))
                         break;
                     if(i == 10) {

@@ -19,6 +19,7 @@ public class WarpCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if(!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "You must be a player to use this command");
+            Bukkit.getLogger().info(WarpsGUI.warpOwner.toString());
             return true;
         }
         Player p = (Player) sender;
@@ -37,7 +38,7 @@ public class WarpCommand implements CommandExecutor {
             }
         Essentials essentials = WarpsGUI.getInstance().getEssentials();
         if(essentials == null)
-            if(!WarpsGUI.getInstance().makeEssentials()) {
+            if(WarpsGUI.getInstance().makeEssentials()) {
                 Bukkit.getServer().getLogger().severe("Error: Essentials not found");
                 p.sendMessage(ChatColor.RED + "Essentials plugin not found!");
                 return true;

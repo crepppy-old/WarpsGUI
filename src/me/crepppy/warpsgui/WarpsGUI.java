@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class WarpsGUI extends JavaPlugin {
     static HashMap<OfflinePlayer, Integer> playerWarps = new HashMap<>();
@@ -35,6 +34,7 @@ public class WarpsGUI extends JavaPlugin {
         instance = this;
         getConfig().options().copyDefaults(true);
         getConfig().options().copyHeader(true);
+        saveDefaultConfig();
         saveConfig();
         playerDataFile = new File(getDataFolder(), "playerData.yml");
         if(!playerDataFile.exists()) {
@@ -59,19 +59,20 @@ public class WarpsGUI extends JavaPlugin {
             playerWarps.put(Bukkit.getOfflinePlayer(UUID.fromString(s.split(":")[0])), Integer.parseInt(s.split(":")[1]));
         }
         for(String s : playerData.getKeys(false)) {
-            List<String> stringList = playerData.getStringList(s);
+            List<String> stringList = playerData.getStringList(s + ".visitors");
             List<UUID> uuid = new ArrayList<>();
-            warpOwner.put(s, UUID.fromString(stringList.get(0)));
-            stringList.remove(0);
+            warpOwner.put(s, UUID.fromString(playerData.getString(s + ".owner")));
             for(String string : stringList)
                 uuid.add(UUID.fromString(string));
             uniqueVisits.put(s, uuid);
         }
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, this::makeEssentials, 20*6);
+        getLogger().info(warpOwner.toString());
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, this::makeEssentials, 20 * 6);
     }
     
     @Override
     public void onDisable() {
+        reloadConfig();
         List<String> stringList = new ArrayList<>();
         if(!warps.isEmpty())
             warps.forEach((k, v) -> stringList.add(k + ":" + v));
@@ -80,14 +81,16 @@ public class WarpsGUI extends JavaPlugin {
         if(!playerWarps.isEmpty())
             playerWarps.forEach((k, v) -> playerWarpsList.add(k.getUniqueId() + ":" + v));
         getConfig().set("playerWarps", playerWarpsList);
-        saveConfig();
-        for(String s : uniqueVisits.keySet()) {
-            List<String> uuid = new ArrayList<>();
-            uuid.add(warpOwner.get(s).toString());
-            for(UUID u : uniqueVisits.get(s))
-                uuid.add(u.toString());
-            playerData.set(s, uuid);
+        for(String s : warpOwner.keySet()) {
+            playerData.set(s + ".owner", warpOwner.get(s).toString());
         }
+        for (String s : uniqueVisits.keySet()) {
+            List<String> uuid = new ArrayList<>();
+                for(UUID u : uniqueVisits.get(s))
+                    uuid.add(u.toString());
+            playerData.set(s + ".visitors", uuid);
+        }
+        saveConfig();
         savePlayerData();
     }
     
@@ -104,7 +107,7 @@ public class WarpsGUI extends JavaPlugin {
         Plugin p = Bukkit.getPluginManager().getPlugin("Essentials");
         if(p.isEnabled() && (p instanceof Essentials))
             essentials = (Essentials) p;
-        return essentials == null;
+        return essentials != null;
     }
     
     Essentials getEssentials() {
